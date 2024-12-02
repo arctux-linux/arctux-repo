@@ -15,8 +15,15 @@ export default {
 			return response;
 		}
 
-		// If not in cache, get it from R2
 		const objectKey = url.pathname.slice(1);
+
+		// No need to query the bucket if the object key does not start with a
+		// known path prefix.
+		if (objectKey === '' || !objectKey.startsWith('aarch64/')) {
+			return new Response('Object Not Found', { status: 404 });
+		}
+
+		// If not in cache, get it from R2
 		const object = await env.REPO_BUCKET.get(objectKey);
 		if (object === null) {
 			return new Response('Object Not Found', { status: 404 });
