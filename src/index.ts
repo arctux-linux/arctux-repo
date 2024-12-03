@@ -29,21 +29,12 @@ export default {
       return new Response('Object Not Found', { status: 404 });
     }
 
-    // Set the appropriate object headers
     const headers = new Headers();
     object.writeHttpMetadata(headers);
     headers.set('etag', object.httpEtag);
-
-    // Cache API respects Cache-Control headers. Setting s-max-age to 10
-    // will limit the response to be in cache for 10 seconds max
-    // Any changes made to the response here will be reflected in the cached value
-    headers.append('Cache-Control', 's-maxage=10');
+    headers.append('Cache-Control', 's-maxage=3600');
 
     response = new Response(object.body, { headers });
-
-    // Store the fetched response as cacheKey
-    // Use waitUntil so you can return the response without blocking on
-    // writing to cache
     context.waitUntil(cache.put(cacheKey, response.clone()));
 
     return response;
